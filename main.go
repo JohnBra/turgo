@@ -15,9 +15,9 @@ type (
 )
 
 type choice struct {
-	text  string
-	color string
-	tag   string
+	tag         string
+	description string
+	color       string
 }
 
 type model struct {
@@ -39,10 +39,10 @@ func initialModel() model {
 
 	return model{
 		choices: []choice{
-			{text: "[ADD] : feature commits, adding lines of code.", color: "#7FD85A", tag: "[ADD]"},
-			{text: "[FIX] : bug fixing commits.", color: "#E3F9B4", tag: "[FIX]"},
-			{text: "[REF] : small and big changes without new features.", color: "#F471F7", tag: "[REF]"},
-			{text: "[BRK] : breaking changes.", color: "#FA6A5A", tag: "[BRK]"},
+			{tag: "[ADD]", description: "feature commits, adding lines of code.", color: "#7FD85A"},
+			{tag: "[FIX]", description: "bug fixing commits.", color: "#E3F9B4"},
+			{tag: "[REF]", description: "small and big changes without new features.", color: "#F471F7"},
+			{tag: "[BRK]", description: "breaking changes.", color: "#FA6A5A"},
 		},
 		textInput: ti,
 		err:       nil,
@@ -123,7 +123,7 @@ func (m model) View() string {
 			}
 
 			var style = gloss.NewStyle().Foreground(gloss.Color(choice.color))
-			s += fmt.Sprintf("%s %s\n", cursor, style.Render(choice.text))
+			s += fmt.Sprintf("%s %s\n", cursor, style.Render(choice.tag+" : "+choice.description))
 		}
 	} else {
 		s += fmt.Sprintf("Enter a title for your %s commit:\n%s", m.tag, m.textInput.View())
