@@ -53,54 +53,69 @@ func (m model) Init() tea.Cmd {
 	return input.Blink
 }
 
+// moves cursor up and down and sets tag in model on selection
+func selectTag(msg tea.KeyMsg, m model) (model, tea.Cmd) {
+	switch msg.String() {
+
+	case "ctrl+c", "q":
+		return m, tea.Quit
+
+	case "up", "k":
+		if m.cursor > 0 {
+			m.cursor--
+		}
+
+	case "down", "j":
+		if m.cursor < len(m.choices)-1 {
+			m.cursor++
+		}
+
+	case "enter", " ":
+		m.tag = m.choices[m.cursor].tag
+		m.step++
+	}
+	return m, nil
+}
+
+// sets commit message in model and execs commit on enter
+func getCommitTitle(msg tea.KeyMsg, m model) (model, tea.Cmd) {
+	var cmd tea.Cmd
+
+	switch msg.Type {
+
+	case tea.KeyCtrlC, tea.KeyEsc:
+		return m, tea.Quit
+
+	case tea.KeyEnter:
+		title := fmt.Sprintf("%s %s\n", m.tag, m.textInput.Value())
+		gc := exec.Command("git", "commit", "-m", title)
+		out, err := gc.Output()
+		if err != nil {
+			fmt.Println("could not run command: ", err)
+		} else {
+			m.res = string(out)
+		}
+		return m, tea.Quit
+	}
+
+	m.textInput, cmd = m.textInput.Update(msg)
+	return m, cmd
+}
+
 func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	var cmd tea.Cmd
+
 	switch msg := msg.(type) {
 
 	// Is it a key press?
 	case tea.KeyMsg:
 		if m.step == 0 {
-			switch msg.String() {
-
-			case "ctrl+c", "q":
-				return m, tea.Quit
-
-			case "up", "k":
-				if m.cursor > 0 {
-					m.cursor--
-				}
-
-			case "down", "j":
-				if m.cursor < len(m.choices)-1 {
-					m.cursor++
-				}
-
-			case "enter", " ":
-				m.tag = m.choices[m.cursor].tag
-				m.step++
-			}
-			return m, nil
+			m, cmd = selectTag(msg, m)
 		} else { // for now we just have step 1 here
-			switch msg.Type {
-			case tea.KeyCtrlC, tea.KeyEsc:
-				return m, tea.Quit
-			case tea.KeyEnter:
-				title := fmt.Sprintf("%s %s\n", m.tag, m.textInput.Value())
-				gc := exec.Command("git", "commit", "-m", title)
-				out, err := gc.Output()
-				if err != nil {
-					fmt.Println("could not run command: ", err)
-				} else {
-					m.res = string(out)
-				}
-				return m, tea.Quit
-			}
-
-			m.textInput, cmd = m.textInput.Update(msg)
+			m, cmd = getCommitTitle(msg, m)
 		}
 	case errMsg:
-		m.err = msg
-		return m, nil
+		m.err, cmd = msg, nil
 	}
 
 	return m, cmd
