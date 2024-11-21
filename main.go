@@ -35,7 +35,7 @@ func initialModel() model {
 	ti.Placeholder = "..."
 	ti.Focus()
 	ti.CharLimit = 72
-	ti.Width = 20
+	ti.Width = 72
 
 	return model{
 		choices: []choice{
