@@ -85,17 +85,14 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			case tea.KeyCtrlC, tea.KeyEsc:
 				return m, tea.Quit
 			case tea.KeyEnter:
-				// execute git commit -m "%s %s" where 0 is tag and 1 is m.textInput
 				title := fmt.Sprintf("%s %s\n", m.tag, m.textInput.Value())
 				gc := exec.Command("git", "commit", "-m", title)
-				// The `Output` method executes the command and
-				// collects the output, returning its value
 				out, err := gc.Output()
 				if err != nil {
-					// if there was any error, print it here
 					fmt.Println("could not run command: ", err)
+				} else {
+					m.res = string(out)
 				}
-				m.res = string(out)
 				return m, tea.Quit
 			}
 
