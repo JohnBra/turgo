@@ -147,7 +147,6 @@ func (m model) View() string {
 	return s
 }
 
-// commitCmd represents the commit command
 var (
 	commitCmd = &cobra.Command{
 		Use:   "commit",
