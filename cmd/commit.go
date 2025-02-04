@@ -148,18 +148,28 @@ func (m model) View() string {
 }
 
 // commitCmd represents the commit command
-var commitCmd = &cobra.Command{
-	Use:   "commit",
-	Short: "Commit staged files to git",
-	Run: func(cmd *cobra.Command, args []string) {
-		p := tea.NewProgram(initialModel())
+var (
+	commitCmd = &cobra.Command{
+		Use:   "commit",
+		Short: "Commit staged files to git",
+		Run: func(cmd *cobra.Command, args []string) {
+			p := tea.NewProgram(initialModel())
 
-		if _, err := p.Run(); err != nil {
-			fmt.Printf("Error executing commit: %v", err)
-			os.Exit(1)
-		}
-	},
-}
+			if _, err := p.Run(); err != nil {
+				fmt.Printf("Error executing commit: %v", err)
+				os.Exit(1)
+			}
+		},
+	}
+
+	logCmd = &cobra.Command{
+		Use:   "log",
+		Short: "Show the git log, but with colors",
+		Run: func(cmd *cobra.Command, args []string) {
+			fmt.Println("turgo log here")
+		},
+	}
+)
 
 func init() {
 	rootCmd.AddCommand(commitCmd)
